@@ -1,0 +1,14 @@
+body {
+    margin : 0;
+    height: 100%;
+}
+
+.gutter-box {
+    padding: 8px 0;
+    background: #00a0e9;
+  }
+
+  .card-size {
+    width: 360px;
+    height: 170px;
+  }

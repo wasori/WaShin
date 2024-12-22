@@ -1,0 +1,8 @@
+{
+    "compilerOptions": {
+      "target": "es5",
+      "jsx": "react-jsx",
+      "strict": true,
+      "skipLibCheck": true
+    }
+}
