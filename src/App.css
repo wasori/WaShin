@@ -1,14 +1,49 @@
 body {
-    margin : 0;
-    height: 100%;
+  margin: 0;
+  height: 100%;
 }
 
-.gutter-box {
-    padding: 8px 0;
-    background: #00a0e9;
-  }
+.price-box {
+  border: 2px solid transparent;
+  box-sizing: border-box;
+  padding: 10px;
+  transition: border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
 
-  .card-size {
-    width: 360px;
-    height: 170px;
-  }
+
+.price-box.up {
+  border-color: green;
+  background-color: rgba(0, 255, 0, 0.1);
+}
+
+.price-box.down {
+  border-color: red;
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+.price-box.neutral {
+  border-color: transparent;
+  background-color: transparent;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.3); 
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

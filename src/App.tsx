@@ -1,87 +1,68 @@
-import { Breadcrumb, Card, Col, Flex, Layout, Menu, Row, theme, } from "antd";
-import { Content, Footer, Header } from "antd/es/layout/layout";
-import Sider from "antd/es/layout/Sider";
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from 'react';
+import { ThemeProvider } from 'styled-components';
+import HeaderSection from './components/HeaderSection';
+import LeftSectionContent from './components/LeftSectionContent';
+import RightSectionContent from './components/RightSectionContent';
+import TradeHistorySection from './components/TradeHistorySection';
+import Footer from './components/Footer'; 
+import theme from './styles/theme';
+import GlobalStyles from './styles/GlobalStyle';
+import { useUpbitData, coinList } from './hooks/useUpbitData';
+
 import './App.css';
-import { AliwangwangOutlined } from "@ant-design/icons";
-
-const items = new Array(15).fill(null).map((_, index) => ({
-    key: index + 1,
-    label: `nav ${index + 1}`,
-}));
-
-const FullHeightLayout = styled(Layout)`
-  min-height: 100vh;
-`;
-
-const ContentDiv = styled(Content)`
-  background-color: #001529;
-  height: calc(100vh - 64px); /* Header 높이 제외 */
-  display: flex;
-`;
-
-const ColDiv = styled.div`
-    background: '#0092ff';
-    padding: '8px 0';
-    height: '150px';
-`
 
 function App() {
-    return (
-        <FullHeightLayout>
-            <Header style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid rgb(52, 58, 71)' }}>
-                <AliwangwangOutlined style={{ fontSize: '30px', color: '#fff', marginRight: '7px' }} />
-                <div style={{ fontSize: '26px', color: '#fff', fontWeight: 'bold' }}>WaShin</div>
-            </Header>
-            <ContentDiv style={{ padding: '0 30px' }}>
-                <div style={{ width: '80%', height: '100%' }}>
-                    <div style={{ width: '100%', height: '59%', padding: '5px' }}>
-                        <Row gutter={[16, 24]}>
-                            <Col className="gutter-row" span={6}>
-                                <ColDiv>
-                                    <Card className="card-size">
-                                    </Card>
-                                </ColDiv>
-                            </Col>
-                            <Col className="gutter-row" span={6}>
-                                <Card className="card-size">
-                                </Card>
-                            </Col>
-                            <Col className="gutter-row" span={6}>
-                                <Card className="card-size">
-                                </Card>
-                            </Col>
-                            <Col className="gutter-row" span={6}>
-                                <Card className="card-size">
-                                </Card>
-                            </Col>
-                            <Col className="gutter-row" span={6}>
-                                <Card className="card-size">
-                                </Card>
-                            </Col>
-                            <Col className="gutter-row" span={6}>
-                                <Card className="card-size">
-                                </Card>
-                            </Col>
-                            <Col className="gutter-row" span={6}>
-                                <Card className="card-size">
-                                </Card>
-                            </Col>
-                            <Col className="gutter-row" span={6}>
-                                <Card className="card-size">
-                                </Card>
-                            </Col>
-                        </Row>
-                    </div>
-                    <div style={{ border: '2px solid rgb(52, 58, 71)' }}></div>
-                    <div style={{ width: '100%', height: '39%' }}></div>
-                </div>
-                <div style={{ width: '20%', height: '100%' }}>
+  const { prices, priceHistory, tradeHistory, loading } = useUpbitData();
+  const [priceChanges, setPriceChanges] = useState<Record<string, 'up' | 'down' | 'neutral'>>({});
+  const prevPrices = useRef<Record<string, number>>({});
 
-                </div>
-            </ContentDiv>
-        </FullHeightLayout>
-    )
+  useEffect(() => {
+    const newPriceChanges: Record<string, 'up' | 'down' | 'neutral'> = {};
+
+    Object.keys(prices).forEach((market) => {
+      const newPrice = prices[market]?.trade_price || 0;
+      const oldPrice = prevPrices.current[market] || 0;
+
+      if (newPrice > oldPrice) {
+        newPriceChanges[market] = 'up';
+      } else if (newPrice < oldPrice) {
+        newPriceChanges[market] = 'down';
+      } else {
+        newPriceChanges[market] = 'neutral';
+      }
+
+      prevPrices.current[market] = newPrice;
+    });
+
+    setPriceChanges(newPriceChanges);
+  }, [prices]);
+
+  return (
+    <ThemeProvider theme={theme}>
+      <GlobalStyles />
+      <HeaderSection />
+
+      {/* 로딩 중이면 스피너 표시 */}
+      {loading ? (
+        <div className="spinner-container">
+          <div className="spinner"></div>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', height: 'calc(100vh - 89px)', overflow: 'hidden' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', width: '80%', overflow: 'hidden' }}>
+            <div style={{ flex: 2, width: '97.5%', overflow: 'hidden' , padding: '20px'}}>
+              <LeftSectionContent coinList={coinList} priceHistories={priceHistory} />
+            </div>
+            <div style={{ flex: 1, overflow: 'hidden' }}>
+              <TradeHistorySection />
+            </div>
+          </div>
+          <RightSectionContent coinList={coinList} prices={prices} priceChanges={priceChanges} />
+        </div>
+      )}
+      <Footer /> 
+    </ThemeProvider>
+  );
 }
 
 export default App;
